@@ -33,6 +33,6 @@ export const FramesContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
-  max-height: 80vh;
-  overflow: auto;
+  max-height: 43vh;
+  overflow-y: auto;
 `

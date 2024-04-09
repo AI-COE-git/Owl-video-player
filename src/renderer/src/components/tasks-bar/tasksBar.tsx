@@ -17,6 +17,7 @@ import { FrameSection } from '../../types/enums/frame-section'
 import { FrameRateAction } from '../../types/enums/frame-rate-action'
 import { useEffect, useState } from 'react'
 import { startSection, endSection, setCount } from '../../../store/reducers/videoReducer'
+import { startSectionKeys, stopSectionKeys } from './helpers'
 
 type Props = {
   handleFileInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void
@@ -36,6 +37,22 @@ const Tasksbar: React.FC<Props> = ({
   const [disabled, setDisabled] = useState<boolean>(!video.src)
   const [setBlockCountFrameSection] = useSetBlockCountFrameSectionMutation()
   const [getCount] = useGetCountMutation()
+
+  useEffect(() => {
+    const handleKeyDown = async (event: KeyboardEvent) => {
+      if (startSectionKeys.includes(event.key)) {
+        await handleFrameSection(FrameSection.START)
+      } else if (stopSectionKeys.includes(event.key)) {
+        await handleFrameSection(FrameSection.END)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [disabled])
 
   const handleFrameSection = async (type: FrameSection) => {
     if (disabled) return
