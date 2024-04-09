@@ -42,16 +42,17 @@ const Tasksbar: React.FC<Props> = ({
     setDisabled(true)
     const frameNumber = getCurrentExactFrame()
     const lastIndex = video.sections.length - 1
+    const { id } = video.sections[lastIndex]
     if (type === FrameSection.START) {
       if (video.sections[lastIndex].endFrame) {
         dispatch(startSection({ frameNumber }))
         await setBlockCountFrameSection({ type, frameNumber: frameNumber })
       }
     } else if (type === FrameSection.END) {
-      dispatch(endSection({ frameNumber }))
+      dispatch(endSection({ id, frameNumber }))
       await setBlockCountFrameSection({ type, frameNumber: frameNumber })
       setDisabled(!video.src)
-      handleCount(lastIndex)
+      handleCount(id)
     }
     setDisabled(!video.src)
   }
@@ -60,11 +61,11 @@ const Tasksbar: React.FC<Props> = ({
     setDisabled(!video.src)
   }, [video])
 
-  const handleCount = async (index: number) => {
+  const handleCount = async (id: string) => {
     if (disabled) return
     const response = await getCount({})
     if ('data' in response) {
-      dispatch(setCount({ index, ...response.data }))
+      dispatch(setCount({ id, ...response.data }))
     } else if ('error' in response) {
       console.log(response.error)
     }

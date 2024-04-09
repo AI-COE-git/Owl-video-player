@@ -31,3 +31,29 @@ export const FrameSectionDetail = styled.div`
   padding: 5px 10px;
   border-radius: 5px;
 `
+
+export const FrameSectionInput = styled.input`
+  margin-right: 10px;
+  border: 1px solid white;
+  border-radius: 5px;
+`
+
+export const AngleButton = styled.button`
+  color: rgba(51, 51, 51, 0.9);
+  border: 1px solid white;
+  background-color: white;
+  padding: 10px 20px;
+  margin-right: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 5px;
+  cursor: pointer;
+  transition-duration: 0.4s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: #222; /* Darker Gray */
+    color: white;
+  }
+`

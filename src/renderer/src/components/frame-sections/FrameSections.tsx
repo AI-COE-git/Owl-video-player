@@ -16,7 +16,7 @@ const FrameSections: React.FC<Props> = ({}) => {
       <FramesContainer>
         {showFrames &&
           sections.map((section, index) => (
-            <FrameSection key={index} section={section} index={index} />
+            <FrameSection key={section.id} section={section} index={index} />
           ))}
       </FramesContainer>
     </FrameSectionsContainer>

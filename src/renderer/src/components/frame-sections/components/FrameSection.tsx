@@ -1,8 +1,14 @@
-import { FrameSectionContainer, FrameSectionDetail, FrameSectionNumber } from './style'
-import { Button } from '../style'
+import {
+  AngleButton,
+  FrameSectionContainer,
+  FrameSectionDetail,
+  FrameSectionInput,
+  FrameSectionNumber
+} from './style'
 import { VideoSection, setAngle } from '../../../../store/reducers/videoReducer'
 import { useAppDispatch } from '../../../../store/store'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { isValidAngle } from '../../../../../utils/isValidAngle'
 
 type Props = {
   section: VideoSection
@@ -14,19 +20,20 @@ const FrameSection: React.FC<Props> = ({ section, index }) => {
   const [angleInput, setAngleInput] = useState<number>()
   const [openAngleInput, setOpenAngleInput] = useState<boolean>(false)
 
-  // useEffect(() => {
-  //   window.addEventListener('keydown', handleKeyDown)
-  //   return () => {
-  //     window.removeEventListener('keydown', handleKeyDown)
-  //   }
-  // }, [])
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (isValidAngle(angleInput)) {
+        angleHandler()
+      } else {
+        alert('Please enter a valid angle (0-360 degrees).')
+      }
+    }
+  }
 
-  // const handleKeyDown = (event: KeyboardEvent) => {
-  //   if (event.key === 'Enter') {
-  //     if (angleInput) dispatch(setAngle({ index, angle: angleInput }))
-  //     setOpenAngleInput(false)
-  //   }
-  // }
+  const angleHandler = () => {
+    if (angleInput !== undefined) dispatch(setAngle({ id: section.id, angle: angleInput }))
+    setOpenAngleInput(false)
+  }
 
   return (
     <FrameSectionContainer>
@@ -37,21 +44,25 @@ const FrameSection: React.FC<Props> = ({ section, index }) => {
       {section.endFrame !== undefined && (
         <FrameSectionDetail>End Frame: {section.endFrame}</FrameSectionDetail>
       )}
+      {section.endFrame !== undefined && section.angle === undefined && !openAngleInput && (
+        <AngleButton onClick={() => setOpenAngleInput(true)}>Add Angle</AngleButton>
+      )}
+      {openAngleInput && (
+        <FrameSectionInput
+          type="number"
+          onKeyDown={handleKeyDown}
+          onChange={async (e) => setAngleInput(parseInt(e.target.value))}
+        />
+      )}
+      {section.angle !== undefined && (
+        <FrameSectionDetail>Angle: {section.angle}</FrameSectionDetail>
+      )}
       {section.countLeft !== undefined && (
         <FrameSectionDetail>Count Left: {section.countLeft}</FrameSectionDetail>
       )}
       {section.countRight !== undefined && (
         <FrameSectionDetail>Count Right: {section.countRight}</FrameSectionDetail>
       )}
-      {section.angle !== undefined && (
-        <FrameSectionDetail>Angle: {section.angle}</FrameSectionDetail>
-      )}
-      {/* {section.endFrame !== undefined && section.angle === undefined && !openAngleInput && (
-        <Button onClick={() => setOpenAngleInput(true)}>+ Angle</Button>
-      )}
-      {openAngleInput && (
-        <input type="number" onChange={async (e) => setAngleInput(parseInt(e.target.value))} />
-      )} */}
     </FrameSectionContainer>
   )
 }

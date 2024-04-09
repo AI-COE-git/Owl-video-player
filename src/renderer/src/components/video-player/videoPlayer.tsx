@@ -85,16 +85,16 @@ const VideoPlayer: React.FC = () => {
 
   const handleVideoEnd = async () => {
     const frameNumber = getCurrentExactFrame()
-    const lastIndex = video.sections.length - 1
-    dispatch(endSection({ frameNumber }))
+    const lastId = video.sections[video.sections.length - 1].id
+    dispatch(endSection({ id: lastId, frameNumber }))
     await setBlockCountFrameSection({ type: FrameSection.END, frameNumber: frameNumber })
-    handleCount(lastIndex)
+    handleCount(lastId)
   }
 
-  const handleCount = async (index: number) => {
+  const handleCount = async (lastId: string) => {
     const response = await getCount({})
     if ('data' in response) {
-      dispatch(setCount({ index, ...response.data }))
+      dispatch(setCount({ id: lastId, ...response.data }))
     } else if ('error' in response) {
       console.log(response.error)
     }

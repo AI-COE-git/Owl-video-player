@@ -1,7 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { getUniqueId } from '../../../utils/getUniqueId'
 
 export interface VideoSection {
+  id: string
   startFrame: number
   endFrame?: number
   countLeft?: number
@@ -23,6 +25,7 @@ const initialState: VideoState = {
   frames: 30,
   sections: [
     {
+      id: getUniqueId(),
       startFrame: 0
     }
   ]
@@ -37,25 +40,33 @@ export const videoSlice = createSlice({
     },
     startSection: (state, action: PayloadAction<{ frameNumber: number }>) => {
       state.sections.push({
+        id: getUniqueId(),
         startFrame: action.payload.frameNumber
       })
     },
-    endSection: (state, action: PayloadAction<{ frameNumber: number }>) => {
-      state.sections[state.sections.length - 1].endFrame = action.payload.frameNumber
+    endSection: (state, action: PayloadAction<{ id: string; frameNumber: number }>) => {
+      const { id, frameNumber } = action.payload
+      const sectionToUpdate = state.sections.find((section) => section.id === id)
+      if (sectionToUpdate) {
+        sectionToUpdate.endFrame = frameNumber
+      }
     },
     setCount: (
       state,
-      action: PayloadAction<{ index: number; countLeft: number; countRight: number }>
+      action: PayloadAction<{ id: string; countLeft: number; countRight: number }>
     ) => {
-      state.sections[action.payload.index] = {
-        ...state.sections[action.payload.index],
-        ...action.payload
+      const { id, countLeft, countRight } = action.payload
+      const sectionToUpdate = state.sections.find((section) => section.id === id)
+      if (sectionToUpdate) {
+        sectionToUpdate.countLeft = countLeft
+        sectionToUpdate.countRight = countRight
       }
     },
-    setAngle: (state, action: PayloadAction<{ index: number; angle: number }>) => {
-      state.sections[action.payload.index] = {
-        ...state.sections[action.payload.index],
-        ...action.payload
+    setAngle: (state, action: PayloadAction<{ id: string; angle: number }>) => {
+      const { id, angle } = action.payload
+      const sectionToUpdate = state.sections.find((section) => section.id === id)
+      if (sectionToUpdate) {
+        sectionToUpdate.angle = angle
       }
     }
   }
