@@ -16,13 +16,13 @@ const FrameSections: React.FC<Props> = ({}) => {
       const prevSectionsAngles = prevSectionsAnglesRef.current
       const currentSectionsAngles = sections.map((section) => section.angle)
 
-      // Check if there are non-angle changes
-      const hasNonAngleChanges = !prevSectionsAngles.every((prevAngle, index) => {
+      // Check if there are angle changes
+      const hasAngleChanges = !prevSectionsAngles.every((prevAngle, index) => {
         return prevAngle === currentSectionsAngles[index]
       })
 
       // Scroll only if there are non-angle changes
-      if (!hasNonAngleChanges) {
+      if (!hasAngleChanges) {
         framesContainerRef.current.scrollTo({
           top: framesContainerRef.current.scrollHeight,
           behavior: 'smooth'
