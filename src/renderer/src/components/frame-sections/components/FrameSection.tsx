@@ -1,8 +1,8 @@
 import { FrameSectionContainer, FrameSectionDetail, FrameSectionNumber } from './style'
-import { Button } from '../style'
-import { VideoSection, setAngle } from '../../../../store/reducers/videoReducer'
-import { useAppDispatch } from '../../../../store/store'
-import { useEffect, useState } from 'react'
+// import { Button } from '../style'
+import { VideoSection } from '../../../../store/reducers/videoReducer'
+// import { useAppDispatch } from '../../../../store/store'
+// import { useEffect, useState } from 'react'
 
 type Props = {
   section: VideoSection
@@ -10,9 +10,9 @@ type Props = {
 }
 
 const FrameSection: React.FC<Props> = ({ section, index }) => {
-  const dispatch = useAppDispatch()
-  const [angleInput, setAngleInput] = useState<number>()
-  const [openAngleInput, setOpenAngleInput] = useState<boolean>(false)
+  // const dispatch = useAppDispatch()
+  // const [angleInput, setAngleInput] = useState<number>()
+  // const [openAngleInput, setOpenAngleInput] = useState<boolean>(false)
 
   // useEffect(() => {
   //   window.addEventListener('keydown', handleKeyDown)
