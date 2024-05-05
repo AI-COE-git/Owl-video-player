@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa'
 import { RiExpandUpDownFill } from 'react-icons/ri'
 import { TbKeyframes } from 'react-icons/tb'
-
+import { FaClock } from 'react-icons/fa'
 import {
   ControlsContainer,
   InnerBar,
@@ -25,7 +25,8 @@ import {
   IconWrapper,
   DropdownContainer,
   Dropdown,
-  Option
+  Option,
+  HiddenIconsContainer
 } from './style'
 import { useAppDispatch, useAppSelector } from '../../../../../../../store/store'
 import {
@@ -44,6 +45,12 @@ import {
 } from '../../../../../../../store/api-slices/blockCountSlice'
 import { startSectionKeys, stopSectionKeys } from '../../../tasks-bar/helpers'
 import SnapshotPreview from '../snapshot-preview/SnapshotPreview'
+import {
+  exitFullScreenKeys,
+  nextFrameKeys,
+  playPauseKeys,
+  prevFrameKeys
+} from '@renderer/components/video-player/helpers'
 
 interface ControlsProps {
   videoRef: React.RefObject<HTMLVideoElement>
@@ -73,17 +80,17 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
   const [frameRateIsOpen, setFrameRateIsOpen] = useState(false)
   const [fullScreenMode, setFullScreenMode] = useState(false)
 
+  const [speed, setSpeed] = useState(1)
+  const [openSpeedOptions, setOpenSpeedOptions] = useState(false)
+  const [speedOptions] = useState([0.25, 0.5, 1, 1.5, 2])
+
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
-
     const curr = (video.currentTime / video.duration) * 100
     setProgress(`${curr}%`)
     setCurrentTime(formatTime(video.currentTime))
     setDuration(formatTime(videoDuration as number))
-    if (video.ended) {
-      dispatch(setIsPlaying(false))
-    }
   }, [])
 
   useEffect(() => {
@@ -106,8 +113,34 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
     const handleKeyDown = async (event: KeyboardEvent) => {
       if (startSectionKeys.includes(event.key)) {
         await handleFrameSection(FrameSection.START)
+        return
       } else if (stopSectionKeys.includes(event.key)) {
         await handleFrameSection(FrameSection.END)
+        return
+      } else if (playPauseKeys.includes(event.code)) {
+        playPause()
+        return
+      } else if (exitFullScreenKeys.includes(event.key)) {
+        const video = videoRef.current
+        if (video) {
+          video.style.width = 'auto'
+          video.style.height = 'auto'
+          setFullScreenMode(false)
+        }
+        return
+      }
+
+      if (!videoDuration) return
+      const totalFrames = videoDuration * frames
+      const currentExactFrame = getCurrentExactFrame()
+      if (!currentExactFrame) return
+
+      if (nextFrameKeys.includes(event.key)) {
+        const nextFrame = currentExactFrame + frameRate
+        handleVideoCurrentTime(nextFrame >= totalFrames ? videoDuration : nextFrame)
+      } else if (prevFrameKeys.includes(event.key)) {
+        const prevFrame = currentExactFrame - frameRate
+        handleVideoCurrentTime(prevFrame < 0 ? 0 : prevFrame)
       }
     }
 
@@ -119,6 +152,13 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
     }
   }, [videoRef])
 
+  const handleVideoCurrentTime = (frame: number) => {
+    if (videoRef.current) {
+      const frameDuration = 1 / frames
+      videoRef.current.currentTime = frame * frameDuration + 0.00001
+    }
+  }
+
   const formatTime = (time: number): string => {
     const minutes = Math.floor(time / 60)
     const seconds = Math.floor(time % 60)
@@ -128,7 +168,6 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
   const playPause = () => {
     const video = videoRef.current
     if (!video) return
-
     if (video.paused) {
       video.play()
       dispatch(setIsPlaying(true))
@@ -141,7 +180,6 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
   const fullScreen = () => {
     const video = videoRef.current
     if (!video) return
-
     if (fullScreenMode) {
       video.style.width = 'auto'
       video.style.height = 'auto'
@@ -156,7 +194,6 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
   const getSnapshotDataURL = () => {
     const video = videoRef.current
     if (!video) return
-
     const canvas = document.createElement('canvas')
     canvas.width = video.videoWidth
     canvas.height = video.videoHeight
@@ -178,14 +215,12 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
   const rewind = () => {
     const video = videoRef.current
     if (!video) return
-
     video.currentTime -= (video.duration / 100) * 5
   }
 
   const forward = () => {
     const video = videoRef.current
     if (!video) return
-
     video.currentTime += (video.duration / 100) * 5
   }
 
@@ -241,6 +276,15 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
     dispatch(setFrameRate(newFramerate))
   }
 
+  const handleSpeedChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const video = videoRef.current
+    if (!video) return
+    const newSpeed = parseFloat(event.target.value)
+    setSpeed(newSpeed)
+    video.playbackRate = newSpeed
+    setOpenSpeedOptions(false)
+  }
+
   return (
     <ControlsContainer>
       <IconsContainer>
@@ -258,7 +302,7 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
       </Timeline>
       <IconsContainer>
         {showControls && (
-          <>
+          <HiddenIconsContainer open={showControls}>
             <IconWrapper>
               {isSectionRun ? (
                 <FaMinusCircle onClick={async () => await handleFrameSection(FrameSection.END)} />
@@ -278,7 +322,18 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
                 </Dropdown>
               </DropdownContainer>
             </IconWrapper>
-
+            <IconWrapper>
+              <FaClock onClick={() => setOpenSpeedOptions((prev) => !prev)} />
+              <DropdownContainer open={openSpeedOptions}>
+                <Dropdown value={speed} onChange={handleSpeedChange}>
+                  {speedOptions.map((option) => (
+                    <Option key={option} value={option}>
+                      {option}x
+                    </Option>
+                  ))}
+                </Dropdown>
+              </DropdownContainer>
+            </IconWrapper>
             <IconWrapper>
               <FaCamera onClick={takeScreenshot} />
             </IconWrapper>
@@ -295,7 +350,7 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
                 <FaExpand onClick={fullScreen} />
               )}
             </IconWrapper>
-          </>
+          </HiddenIconsContainer>
         )}
         <IconWrapper onClick={() => setShowControls(!showControls)}>
           {showControls ? <FaChevronCircleRight /> : <FaChevronCircleLeft />}

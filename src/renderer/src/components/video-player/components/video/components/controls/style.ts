@@ -37,6 +37,7 @@ export const InnerBar = styled.div<{ progress: string }>`
   background-color: #ccc;
   height: 100%;
   width: ${(props) => props.progress || '0%'};
+  border-right: 3px solid black;
 `
 
 export const TimeDisplay = styled.div<{ progress: string }>`
@@ -55,6 +56,11 @@ export const IconsContainer = styled.div`
   gap: 10px;
   margin-left: 10px;
   margin-right: 10px;
+`
+
+export const HiddenIconsContainer = styled.div<{ open: boolean }>`
+  display: flex;
+  gap: 10px;
 `
 
 export const IconWrapper = styled.div`
