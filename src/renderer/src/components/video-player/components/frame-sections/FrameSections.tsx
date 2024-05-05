@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAppSelector } from '../../../../../store/store'
-import FrameSection from './components/FrameSection'
-import { Button, FrameSectionsContainer, FramesContainer } from './style'
+import { FrameSectionsContainer, FramesContainer } from './style'
+import SectionDetails from '../video/components/section-details/SectionDetails'
+import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa'
 
 type Props = {}
 
@@ -36,13 +37,16 @@ const FrameSections: React.FC<Props> = ({}) => {
 
   return (
     <FrameSectionsContainer>
-      <Button onClick={() => setShowFrames((prev) => !prev)}>
-        {showFrames ? 'Close' : 'Open'} Frames
-      </Button>
+      {showFrames ? (
+        <FaArrowCircleDown size={20} onClick={() => setShowFrames((prev) => !prev)} />
+      ) : (
+        <FaArrowCircleUp size={20} onClick={() => setShowFrames((prev) => !prev)} />
+      )}
+
       <FramesContainer ref={framesContainerRef}>
         {showFrames &&
           sections.map((section, index) => (
-            <FrameSection key={section.id} section={section} index={index} />
+            <SectionDetails key={section.id} section={section} index={index} />
           ))}
       </FramesContainer>
     </FrameSectionsContainer>

@@ -45,4 +45,5 @@ export const FramesContainer = styled.div`
   align-items: start;
   max-height: 43vh;
   overflow-y: auto;
+  width: 100%;
 `

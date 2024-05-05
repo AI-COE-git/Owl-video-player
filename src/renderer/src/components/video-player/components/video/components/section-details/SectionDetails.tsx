@@ -4,12 +4,14 @@ import {
   CheckIconWrapper,
   FrameSectionCountDetailContainer,
   FrameSectionDetail,
+  FrameSectionIndex,
   FrameSectionInput,
   SectionDetailsContainer,
   SectionDetailsData
 } from './style'
 import { useAppDispatch, useAppSelector } from '../../../../../../../store/store'
 import {
+  VideoSection,
   setAngle,
   setOverrideCount,
   setShowSectionDetails
@@ -20,13 +22,13 @@ import { RiExpandUpDownFill } from 'react-icons/ri'
 import { FaCheck } from 'react-icons/fa'
 import { ImCancelCircle } from 'react-icons/im'
 
-const SectionDetails = () => {
-  const lastSection = useAppSelector(
-    (state) => state.video.sections[state.video.sections.length - 1]
-  )
+type Props = {
+  section: VideoSection
+  showSectionDetails?: boolean
+  index?: number
+}
 
-  const showSectionDetails = useAppSelector((state) => state.video.showSectionDetails)
-
+const SectionDetails: React.FC<Props> = ({ section, index, showSectionDetails = false }) => {
   const dispatch = useAppDispatch()
 
   const [angleInput, setAngleInput] = useState<number>()
@@ -48,30 +50,29 @@ const SectionDetails = () => {
 
   const handleKeyDownCount = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      if (countInput) dispatch(setOverrideCount({ id: lastSection.id, count: countInput }))
+      if (countInput) dispatch(setOverrideCount({ id: section.id, count: countInput }))
       setOpenCountInput(false)
     }
   }
 
   const angleHandler = () => {
-    if (angleInput !== undefined) dispatch(setAngle({ id: lastSection.id, angle: angleInput }))
+    if (angleInput !== undefined) dispatch(setAngle({ id: section.id, angle: angleInput }))
     setOpenAngleInput(false)
   }
 
   return (
     <SectionDetailsContainer>
       <SectionDetailsData>
-        {lastSection.startFrame !== undefined && (
-          <FrameSectionDetail>Start Frame: {lastSection.startFrame}</FrameSectionDetail>
+        {index !== undefined && <FrameSectionIndex>{index + 1}.</FrameSectionIndex>}
+        {section.startFrame !== undefined && (
+          <FrameSectionDetail>Start Frame: {section.startFrame}</FrameSectionDetail>
         )}
-        {lastSection.endFrame !== undefined && (
-          <FrameSectionDetail>End Frame: {lastSection.endFrame}</FrameSectionDetail>
+        {section.endFrame !== undefined && (
+          <FrameSectionDetail>End Frame: {section.endFrame}</FrameSectionDetail>
         )}
-        {lastSection.endFrame !== undefined &&
-          lastSection.angle === undefined &&
-          !openAngleInput && (
-            <AngleButton onClick={() => setOpenAngleInput(true)}>Add Angle</AngleButton>
-          )}
+        {section.endFrame !== undefined && section.angle === undefined && !openAngleInput && (
+          <AngleButton onClick={() => setOpenAngleInput(true)}>Add Angle</AngleButton>
+        )}
         {openAngleInput && (
           <FrameSectionInput
             type="number"
@@ -79,12 +80,12 @@ const SectionDetails = () => {
             onChange={async (e) => setAngleInput(parseInt(e.target.value))}
           />
         )}
-        {lastSection.angle !== undefined && (
-          <FrameSectionDetail>Angle: {lastSection.angle}</FrameSectionDetail>
+        {section.angle !== undefined && (
+          <FrameSectionDetail>Angle: {section.angle}</FrameSectionDetail>
         )}
-        {lastSection.countLeft !== undefined && !openCountInput && (
+        {section.countLeft !== undefined && !openCountInput && (
           <FrameSectionCountDetailContainer>
-            Count: {lastSection.overrideCount || lastSection.countLeft}
+            Count: {section.overrideCount || section.countLeft}
             <CheckIconWrapper
               onMouseEnter={() => setShowCancel(true)}
               onMouseLeave={() => setShowCancel(false)}
@@ -105,9 +106,13 @@ const SectionDetails = () => {
           />
         )}
       </SectionDetailsData>
-      <IconWrapper>
-        <RiExpandUpDownFill onClick={() => dispatch(setShowSectionDetails(!showSectionDetails))} />
-      </IconWrapper>
+      {showSectionDetails && (
+        <IconWrapper>
+          <RiExpandUpDownFill
+            onClick={() => dispatch(setShowSectionDetails(!showSectionDetails))}
+          />
+        </IconWrapper>
+      )}
     </SectionDetailsContainer>
   )
 }

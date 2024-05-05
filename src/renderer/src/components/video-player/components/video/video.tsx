@@ -18,6 +18,9 @@ const Video: React.FC<VideoProps> = ({ videoRef, src, onEnded, getCurrentExactFr
   const showSectionDetails = useAppSelector((state) => state.video.showSectionDetails)
   const sections = useAppSelector((state) => state.video.sections)
   const videoName = useAppSelector((state) => state.video.name)
+  const lastSection = useAppSelector(
+    (state) => state.video.sections[state.video.sections.length - 1]
+  )
 
   const [generateCsv] = useGenerateCsvMutation()
 
@@ -41,7 +44,7 @@ const Video: React.FC<VideoProps> = ({ videoRef, src, onEnded, getCurrentExactFr
       </StyledVideo>
       <ControlsContainer>
         {showSectionDetails ? (
-          <SectionDetails />
+          <SectionDetails section={lastSection} showSectionDetails={true} />
         ) : (
           <Controls videoRef={videoRef} getCurrentExactFrame={getCurrentExactFrame} />
         )}

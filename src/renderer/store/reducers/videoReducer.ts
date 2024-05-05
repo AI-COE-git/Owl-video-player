@@ -19,6 +19,7 @@ export interface VideoState {
   path: string
   duration?: number
   frames: number
+  frameRate: number
   isPlaying: boolean
   isSectionRun: boolean
   showSectionDetails: boolean
@@ -30,6 +31,7 @@ const initialState: VideoState = {
   name: '',
   path: '',
   frames: 30,
+  frameRate: 1,
   isPlaying: false,
   isSectionRun: true,
   showSectionDetails: false,
@@ -96,6 +98,9 @@ export const videoSlice = createSlice({
       if (sectionToUpdate) {
         sectionToUpdate.angle = angle
       }
+    },
+    setFrameRate: (state, action: PayloadAction<number>) => {
+      state.frameRate = action.payload
     }
   }
 })
@@ -109,7 +114,8 @@ export const {
   endSection,
   setCount,
   setOverrideCount,
-  setAngle
+  setAngle,
+  setFrameRate
 } = videoSlice.actions
 
 export default videoSlice.reducer

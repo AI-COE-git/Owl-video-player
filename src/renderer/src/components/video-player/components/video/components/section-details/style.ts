@@ -8,6 +8,7 @@ export const SectionDetailsContainer = styled.div`
   transition: opacity 0.4s;
   padding: 15px;
   position: relative;
+  width: 100%;
 
   &:hover {
     opacity: 1;
@@ -20,6 +21,10 @@ export const SectionDetailsData = styled.div`
   width: 97%;
 `
 
+export const FrameSectionIndex = styled.div`
+  margin-right: 10px;
+  padding: 5px 10px;
+`
 export const FrameSectionDetail = styled.div`
   margin-right: 10px;
   border: 1px solid white;

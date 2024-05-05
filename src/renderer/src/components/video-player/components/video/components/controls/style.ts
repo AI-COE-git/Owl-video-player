@@ -60,7 +60,34 @@ export const IconsContainer = styled.div`
 export const IconWrapper = styled.div`
   z-index: 10;
   cursor: pointer;
+  position: relative;
+
   &:hover {
     color: #fff; /* Change the color to your desired color */
+  }
+`
+
+export const DropdownContainer = styled.div<{ open: boolean }>`
+  position: absolute;
+  bottom: calc(100% + 5px); /* Adjust the distance between the icon and the dropdown container */
+  left: 50%; /* Position it in the horizontal center */
+  transform: translateX(-50%); /* Move it back by half of its width to center it */
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: ${({ open }) => (open ? 'block' : 'none')};
+`
+
+export const Dropdown = styled.select`
+  background-color: rgba(0, 0, 0, 0.8);
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: Tahoma, sans-serif;
+`
+
+export const Option = styled.option`
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f0f0f0;
   }
 `

@@ -3,6 +3,7 @@ import {
   FaPlay,
   FaPause,
   FaExpand,
+  FaCompress,
   FaCamera,
   FaUndo,
   FaRedo,
@@ -12,6 +13,7 @@ import {
   FaChevronCircleRight
 } from 'react-icons/fa'
 import { RiExpandUpDownFill } from 'react-icons/ri'
+import { TbKeyframes } from 'react-icons/tb'
 
 import {
   ControlsContainer,
@@ -20,12 +22,16 @@ import {
   Bar,
   IconsContainer,
   TimeDisplay,
-  IconWrapper
+  IconWrapper,
+  DropdownContainer,
+  Dropdown,
+  Option
 } from './style'
 import { useAppDispatch, useAppSelector } from '../../../../../../../store/store'
 import {
   endSection,
   setCount,
+  setFrameRate,
   setIsPlaying,
   setIsSectionRun,
   setShowSectionDetails,
@@ -51,6 +57,8 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
   const showSectionDetails = useAppSelector((state) => state.video.showSectionDetails)
   const sections = useAppSelector((state) => state.video.sections)
   const isSectionRun = useAppSelector((state) => state.video.isSectionRun)
+  const frameRate = useAppSelector((state) => state.video.frameRate)
+  const frames = useAppSelector((state) => state.video.frames)
 
   const [getCount] = useGetCountMutation()
   const [setBlockCountFrameSection] = useSetBlockCountFrameSectionMutation()
@@ -61,6 +69,9 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
   const [currentTime, setCurrentTime] = useState('0:00')
   const [duration, setDuration] = useState('0:00')
   const [showControls, setShowControls] = useState(true) // State to toggle visibility of controls
+
+  const [frameRateIsOpen, setFrameRateIsOpen] = useState(false)
+  const [fullScreenMode, setFullScreenMode] = useState(false)
 
   useEffect(() => {
     const video = videoRef.current
@@ -118,7 +129,15 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
     const video = videoRef.current
     if (!video) return
 
-    video.requestFullscreen()
+    if (fullScreenMode) {
+      video.style.width = 'auto'
+      video.style.height = 'auto'
+    } else {
+      video.style.width = '100vw'
+      video.style.height = '100vh'
+    }
+
+    setFullScreenMode((prev) => !prev)
   }
 
   const getSnapshotDataURL = () => {
@@ -203,6 +222,12 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
     dispatch(setShowSectionDetails(!showSectionDetails))
   }
 
+  const handleFrameRateChange = (event) => {
+    const newFramerate = parseInt(event.target.value)
+    setFrameRateIsOpen(false)
+    dispatch(setFrameRate(newFramerate))
+  }
+
   return (
     <ControlsContainer>
       <IconsContainer>
@@ -229,6 +254,19 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
               )}
             </IconWrapper>
             <IconWrapper>
+              <TbKeyframes onClick={() => setFrameRateIsOpen((prev) => !prev)} />
+              <DropdownContainer open={frameRateIsOpen}>
+                <Dropdown value={frameRate} onChange={handleFrameRateChange}>
+                  {[...Array(frames).keys()].map((frame) => (
+                    <Option key={frame + 1} value={frame + 1}>
+                      {frame + 1} FPS
+                    </Option>
+                  ))}
+                </Dropdown>
+              </DropdownContainer>
+            </IconWrapper>
+
+            <IconWrapper>
               <FaCamera onClick={takeScreenshot} />
             </IconWrapper>
             <IconWrapper>
@@ -238,7 +276,11 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
               <FaRedo onClick={forward} />
             </IconWrapper>
             <IconWrapper>
-              <FaExpand onClick={fullScreen} />
+              {fullScreenMode ? (
+                <FaCompress onClick={fullScreen} />
+              ) : (
+                <FaExpand onClick={fullScreen} />
+              )}
             </IconWrapper>
           </>
         )}
