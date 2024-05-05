@@ -1,17 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { VideoContainer } from './style'
-import Tasksbar from './components/tasks-bar/tasksBar'
 import { useAppDispatch, useAppSelector } from '../../../store/store'
-import { endSection, setCount, setNewFile } from '../../../store/reducers/videoReducer'
-import { loadVideo, nextFrameKeys, prevFrameKeys } from './helpers'
-import { useOpenFileMutation } from '../../../store/api-slices/fileSlice'
+import { endSection, setCount } from '../../../store/reducers/videoReducer'
+import { nextFrameKeys, prevFrameKeys } from './helpers'
 import {
   useGetCountMutation,
   useSetBlockCountFrameSectionMutation
 } from '../../../store/api-slices/blockCountSlice'
-import FrameSections from './components/frame-sections/FrameSections'
 import { FrameSection } from '@renderer/types/enums/frame-section'
 import Video from './components/video/video'
+import Tasksbar from './components/tasks-bar/tasksBar'
 
 const VideoPlayer: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -19,7 +17,6 @@ const VideoPlayer: React.FC = () => {
   const frameRate = useAppSelector((state) => state.video.frameRate)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  const [openFile] = useOpenFileMutation()
   const [setBlockCountFrameSection] = useSetBlockCountFrameSectionMutation()
   const [getCount] = useGetCountMutation()
 
@@ -33,22 +30,6 @@ const VideoPlayer: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [video])
-
-  const handleFileInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = event.target.files
-    if (fileList && fileList.length > 0) {
-      const file = fileList[0]
-      const videoElem = await loadVideo(file)
-      const fileDetails = {
-        src: videoElem.src,
-        path: file.path,
-        duration: videoElem.duration,
-        name: file.name
-      }
-      dispatch(setNewFile(fileDetails))
-      await openFile(fileDetails)
-    }
-  }
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (!video.duration) return
@@ -99,9 +80,7 @@ const VideoPlayer: React.FC = () => {
 
   return (
     <VideoContainer>
-      <Tasksbar handleFileInputChange={handleFileInputChange} />
-      {videoRef.current?.src && <FrameSections />}
-
+      <Tasksbar />
       {video.src ? (
         <Video
           videoRef={videoRef}

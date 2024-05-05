@@ -75,6 +75,19 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
 
   useEffect(() => {
     const video = videoRef.current
+    if (!video) return
+
+    const curr = (video.currentTime / video.duration) * 100
+    setProgress(`${curr}%`)
+    setCurrentTime(formatTime(video.currentTime))
+    setDuration(formatTime(videoDuration as number))
+    if (video.ended) {
+      dispatch(setIsPlaying(false))
+    }
+  }, [])
+
+  useEffect(() => {
+    const video = videoRef.current
 
     const handleTimeUpdate = () => {
       if (!video) return

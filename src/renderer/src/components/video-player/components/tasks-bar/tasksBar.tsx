@@ -1,36 +1,28 @@
-import { useAppDispatch, useAppSelector } from '../../../../../store/store'
+import { useOpenFileMutation } from '../../../../../store/api-slices/fileSlice'
+import { setNewFile } from '../../../../../store/reducers/videoReducer'
+import { useAppDispatch } from '../../../../../store/store'
+import { loadVideo } from '../../helpers'
 import { FileInput, TaskbarContainer } from './style'
-import { FrameRateAction } from '../../../../types/enums/frame-rate-action'
-import { useEffect, useState } from 'react'
-import { setFrameRate } from '../../../../../store/reducers/videoReducer'
 
-type Props = {
-  handleFileInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-}
-
-const Tasksbar: React.FC<Props> = ({ handleFileInputChange }) => {
-  const video = useAppSelector((state) => state.video)
-  const frameRate = useAppSelector((state) => state.video.frameRate)
-  const [disabled, setDisabled] = useState<boolean>(!video.src)
-
+const Tasksbar: React.FC = () => {
   const dispatch = useAppDispatch()
-  useEffect(() => {
-    setDisabled(!video.src)
-  }, [video])
+  const [openFile] = useOpenFileMutation()
 
-  const handleFrameRate = (action: FrameRateAction) => {
-    if (disabled) return
-
-    let newFrameRate = frameRate
-    if (action === FrameRateAction.INCREMENT && frameRate !== video.frames) {
-      newFrameRate = frameRate + 1
-    } else if (action === FrameRateAction.DECREMENT && frameRate !== 1) {
-      newFrameRate = frameRate - 1
+  const handleFileInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList && fileList.length > 0) {
+      const file = fileList[0]
+      const videoElem = await loadVideo(file)
+      const fileDetails = {
+        src: videoElem.src,
+        path: file.path,
+        duration: videoElem.duration,
+        name: file.name
+      }
+      dispatch(setNewFile(fileDetails))
+      await openFile(fileDetails)
     }
-
-    dispatch(setFrameRate(newFrameRate))
   }
-
   return (
     <TaskbarContainer>
       <FileInput

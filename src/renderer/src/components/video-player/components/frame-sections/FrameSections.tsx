@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAppSelector } from '../../../../../store/store'
-import { FrameSectionsContainer, FramesContainer } from './style'
+import { FrameSectionsContainer, FramesContainer, ShowFramesButton } from './style'
 import SectionDetails from '../video/components/section-details/SectionDetails'
 import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa'
 
@@ -37,12 +37,13 @@ const FrameSections: React.FC<Props> = ({}) => {
 
   return (
     <FrameSectionsContainer>
-      {showFrames ? (
-        <FaArrowCircleDown size={20} onClick={() => setShowFrames((prev) => !prev)} />
-      ) : (
-        <FaArrowCircleUp size={20} onClick={() => setShowFrames((prev) => !prev)} />
-      )}
-
+      <ShowFramesButton>
+        {showFrames ? (
+          <FaArrowCircleDown size={20} onClick={() => setShowFrames((prev) => !prev)} />
+        ) : (
+          <FaArrowCircleUp size={20} onClick={() => setShowFrames((prev) => !prev)} />
+        )}
+      </ShowFramesButton>
       <FramesContainer ref={framesContainerRef}>
         {showFrames &&
           sections.map((section, index) => (

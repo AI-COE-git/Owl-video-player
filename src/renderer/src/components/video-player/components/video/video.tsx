@@ -6,6 +6,8 @@ import SectionDetails from './components/section-details/SectionDetails'
 import { useAppSelector } from '../../../../../store/store'
 import { useGenerateCsvMutation } from '../../../../../store/api-slices/fileSlice'
 import { writeToCSV } from '../../../../services/csvWriter.service'
+import Tasksbar from '../tasks-bar/tasksBar'
+import FrameSections from '../frame-sections/FrameSections'
 
 interface VideoProps {
   videoRef: React.RefObject<HTMLVideoElement>
@@ -37,6 +39,7 @@ const Video: React.FC<VideoProps> = ({ videoRef, src, onEnded, getCurrentExactFr
 
   return (
     <Container>
+      {videoRef.current?.src && <FrameSections />}
       <StyledVideo ref={videoRef} onEnded={onEnded}>
         <source src={src} type="video/mp4" />
         <source src={src} type="video/webm" />
