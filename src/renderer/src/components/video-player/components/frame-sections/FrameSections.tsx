@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useAppSelector } from '../../../store/store'
+import { useAppSelector } from '../../../../../store/store'
 import FrameSection from './components/FrameSection'
 import { Button, FrameSectionsContainer, FramesContainer } from './style'
 

@@ -3,25 +3,25 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
-import { spawn } from 'child_process'
+// import { spawn } from 'child_process'
 
 // Function to start the Flask API server
-function startFlaskServer(): void {
-  const scriptPath = '/Users/guyleifer/projects/video-player-server/app.py'
-  const flaskProcess = spawn('python', [scriptPath, '--port', '8000'])
+// function startFlaskServer(): void {
+//   const scriptPath = '/Users/guyleifer/projects/video-player-server/app.py'
+//   const flaskProcess = spawn('python', [scriptPath, '--port', '8000'])
 
-  flaskProcess.stdout.on('data', (data) => {
-    console.log(`Flask server stdout: ${data}`)
-  })
+//   flaskProcess.stdout.on('data', (data) => {
+//     console.log(`Flask server stdout: ${data}`)
+//   })
 
-  flaskProcess.stderr.on('data', (data) => {
-    console.error(`Flask server stderr: ${data}`)
-  })
+//   flaskProcess.stderr.on('data', (data) => {
+//     console.error(`Flask server stderr: ${data}`)
+//   })
 
-  flaskProcess.on('close', (code) => {
-    console.log(`Flask server process exited with code ${code}`)
-  })
-}
+//   flaskProcess.on('close', (code) => {
+//     console.log(`Flask server process exited with code ${code}`)
+//   })
+// }
 
 function createWindow(): void {
   // Start the Flask API App

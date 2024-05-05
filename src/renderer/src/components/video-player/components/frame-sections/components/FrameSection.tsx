@@ -5,10 +5,10 @@ import {
   FrameSectionInput,
   FrameSectionNumber
 } from './style'
-import { VideoSection, setAngle } from '../../../../store/reducers/videoReducer'
-import { useAppDispatch } from '../../../../store/store'
+import { VideoSection, setAngle } from '../../../../../../store/reducers/videoReducer'
+import { useAppDispatch } from '../../../../../../store/store'
 import { useState } from 'react'
-import { isValidAngle } from '../../../../../utils/isValidAngle'
+import { isValidAngle } from '../../../../../../../utils/isValidAngle'
 
 type Props = {
   section: VideoSection

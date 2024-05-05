@@ -16,6 +16,7 @@ export interface VideoState {
   path: string
   duration?: number
   frames: number
+  isPlaying: boolean
   sections: VideoSection[]
 }
 
@@ -23,6 +24,7 @@ const initialState: VideoState = {
   src: '',
   path: '',
   frames: 30,
+  isPlaying: false,
   sections: [
     {
       id: getUniqueId(),
@@ -37,6 +39,9 @@ export const videoSlice = createSlice({
   reducers: {
     setNewFile: (_, action: PayloadAction<Partial<VideoState>>) => {
       return { ...initialState, ...action.payload }
+    },
+    setIsPlaying: (state, action: PayloadAction<boolean>) => {
+      state.isPlaying = action.payload
     },
     startSection: (state, action: PayloadAction<{ frameNumber: number }>) => {
       state.sections.push({
@@ -72,6 +77,7 @@ export const videoSlice = createSlice({
   }
 })
 
-export const { setNewFile, startSection, endSection, setCount, setAngle } = videoSlice.actions
+export const { setNewFile, setIsPlaying, startSection, endSection, setCount, setAngle } =
+  videoSlice.actions
 
 export default videoSlice.reducer

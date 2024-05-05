@@ -1,8 +1,8 @@
-import { useAppDispatch, useAppSelector } from '../../../store/store'
+import { useAppDispatch, useAppSelector } from '../../../../../store/store'
 import {
   useGetCountMutation,
   useSetBlockCountFrameSectionMutation
-} from '../../../store/api-slices/blockCountSlice'
+} from '../../../../../store/api-slices/blockCountSlice'
 import {
   Button,
   ButtonsSection,
@@ -13,30 +13,34 @@ import {
   StyledSpan,
   TaskbarContainer
 } from './style'
-import { FrameSection } from '../../types/enums/frame-section'
-import { FrameRateAction } from '../../types/enums/frame-rate-action'
+import { FrameSection } from '../../../../types/enums/frame-section'
+import { FrameRateAction } from '../../../../types/enums/frame-rate-action'
 import { useEffect, useState } from 'react'
-import { startSection, endSection, setCount } from '../../../store/reducers/videoReducer'
+import { startSection, endSection, setCount } from '../../../../../store/reducers/videoReducer'
 import { startSectionKeys, stopSectionKeys } from './helpers'
+import SnapshotPreview from './snapshot-preview/SnapshotPreview'
 
 type Props = {
   handleFileInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   frameRate: number
   setFrameRate: React.Dispatch<React.SetStateAction<number>>
   getCurrentExactFrame: () => number
+  getSnapshotDataURL: () => string | undefined
 }
 
 const Tasksbar: React.FC<Props> = ({
   handleFileInputChange,
   frameRate,
   setFrameRate,
-  getCurrentExactFrame
+  getCurrentExactFrame,
+  getSnapshotDataURL
 }) => {
   const dispatch = useAppDispatch()
   const video = useAppSelector((state) => state.video)
   const [disabled, setDisabled] = useState<boolean>(!video.src)
   const [setBlockCountFrameSection] = useSetBlockCountFrameSectionMutation()
   const [getCount] = useGetCountMutation()
+  const [snapshotDataUrl, setSnapshotDataUrl] = useState<string>()
 
   useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
@@ -99,6 +103,11 @@ const Tasksbar: React.FC<Props> = ({
     )
   }
 
+  const createSnapshot = () => {
+    const snapshotDataURL = getSnapshotDataURL()
+    setSnapshotDataUrl(snapshotDataURL)
+  }
+
   return (
     <TaskbarContainer>
       <FileInput
@@ -108,6 +117,7 @@ const Tasksbar: React.FC<Props> = ({
         onChange={handleFileInputChange}
       />
       <ButtonsSection disabled={disabled}>
+        <Button onClick={createSnapshot}>Take Snapshot</Button>
         <Button onClick={async () => await handleFrameSection(FrameSection.START)}>
           Start Section
         </Button>
@@ -124,6 +134,12 @@ const Tasksbar: React.FC<Props> = ({
           </FrameButtonRight>
         </StyledFrameSection>
       </ButtonsSection>
+      {snapshotDataUrl && (
+        <SnapshotPreview
+          snapshotDataURL={snapshotDataUrl}
+          setSnapshotDataUrl={setSnapshotDataUrl}
+        />
+      )}
     </TaskbarContainer>
   )
 }

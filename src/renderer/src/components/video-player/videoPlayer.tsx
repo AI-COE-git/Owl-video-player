@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { StyledVideo, VideoContainer } from './style'
-import Tasksbar from '../tasks-bar/tasksBar'
+import { VideoContainer } from './style'
+import Tasksbar from './components/tasks-bar/tasksBar'
 import { useAppDispatch, useAppSelector } from '../../../store/store'
 import { endSection, setCount, setNewFile } from '../../../store/reducers/videoReducer'
 import { loadVideo, nextFrameKeys, prevFrameKeys } from './helpers'
@@ -9,8 +9,9 @@ import {
   useGetCountMutation,
   useSetBlockCountFrameSectionMutation
 } from '../../../store/api-slices/blockCountSlice'
-import FrameSections from '../frame-sections/FrameSections'
+import FrameSections from './components/frame-sections/FrameSections'
 import { FrameSection } from '@renderer/types/enums/frame-section'
+import Video from './components/video/video'
 
 const VideoPlayer: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -100,6 +101,17 @@ const VideoPlayer: React.FC = () => {
     }
   }
 
+  const getSnapshotDataURL = (): string | undefined => {
+    const canvas = document.createElement('canvas')
+    canvas.width = videoRef.current?.videoWidth || 0
+    canvas.height = videoRef.current?.videoHeight || 0
+    const ctx = canvas.getContext('2d')
+    if (!ctx || !videoRef.current) return
+    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height)
+    const snapshotDataURL = canvas.toDataURL('image/png')
+    return snapshotDataURL
+  }
+
   return (
     <VideoContainer>
       <Tasksbar
@@ -107,15 +119,12 @@ const VideoPlayer: React.FC = () => {
         frameRate={frameRate}
         setFrameRate={setFrameRate}
         getCurrentExactFrame={getCurrentExactFrame}
+        getSnapshotDataURL={getSnapshotDataURL}
       />
       {videoRef.current?.src && <FrameSections />}
 
       {video.src ? (
-        <StyledVideo ref={videoRef} controls onEnded={async () => await handleVideoEnd()}>
-          <source src={video.src} type="video/mp4" />
-          <source src={video.src} type="video/webm" />
-          <source src={video.src} type="video/ogg" />
-        </StyledVideo>
+        <Video videoRef={videoRef} src={video.src} onEnded={handleVideoEnd} />
       ) : (
         <p>Please choose a video</p>
       )}
