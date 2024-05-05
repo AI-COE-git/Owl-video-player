@@ -14,3 +14,14 @@ export const StyledVideo = styled.video`
   height: 100%;
   object-fit: cover;
 `
+
+export const ControlsContainer = styled.div`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+
+  &:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.8);
+  }
+`

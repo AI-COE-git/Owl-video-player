@@ -28,6 +28,16 @@ export const Button = styled.button`
     background-color: #222; /* Darker Gray */
   }
 `
+export const FrameSectionCountDetailContainer = styled.div`
+  margin-right: 10px;
+  border: 1px solid white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+`
 
 export const FramesContainer = styled.div`
   display: flex;

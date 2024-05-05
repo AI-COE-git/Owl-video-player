@@ -8,23 +8,31 @@ export interface VideoSection {
   endFrame?: number
   countLeft?: number
   countRight?: number
+  count?: number
+  overrideCount?: number
   angle?: number
 }
 
 export interface VideoState {
   src: string
+  name: string
   path: string
   duration?: number
   frames: number
   isPlaying: boolean
+  isSectionRun: boolean
+  showSectionDetails: boolean
   sections: VideoSection[]
 }
 
 const initialState: VideoState = {
   src: '',
+  name: '',
   path: '',
   frames: 30,
   isPlaying: false,
+  isSectionRun: true,
+  showSectionDetails: false,
   sections: [
     {
       id: getUniqueId(),
@@ -43,6 +51,12 @@ export const videoSlice = createSlice({
     setIsPlaying: (state, action: PayloadAction<boolean>) => {
       state.isPlaying = action.payload
     },
+    setIsSectionRun: (state, action: PayloadAction<boolean>) => {
+      state.isSectionRun = action.payload
+    },
+    setShowSectionDetails: (state, action: PayloadAction<boolean>) => {
+      state.showSectionDetails = action.payload
+    },
     startSection: (state, action: PayloadAction<{ frameNumber: number }>) => {
       state.sections.push({
         id: getUniqueId(),
@@ -54,6 +68,7 @@ export const videoSlice = createSlice({
       const sectionToUpdate = state.sections.find((section) => section.id === id)
       if (sectionToUpdate) {
         sectionToUpdate.endFrame = frameNumber
+        state.showSectionDetails = true
       }
     },
     setCount: (
@@ -65,6 +80,14 @@ export const videoSlice = createSlice({
       if (sectionToUpdate) {
         sectionToUpdate.countLeft = countLeft
         sectionToUpdate.countRight = countRight
+        sectionToUpdate.count = countLeft
+      }
+    },
+    setOverrideCount: (state, action: PayloadAction<{ id: string; count: number }>) => {
+      const { id, count } = action.payload
+      const sectionToUpdate = state.sections.find((section) => section.id === id)
+      if (sectionToUpdate) {
+        sectionToUpdate.overrideCount = count
       }
     },
     setAngle: (state, action: PayloadAction<{ id: string; angle: number }>) => {
@@ -77,7 +100,16 @@ export const videoSlice = createSlice({
   }
 })
 
-export const { setNewFile, setIsPlaying, startSection, endSection, setCount, setAngle } =
-  videoSlice.actions
+export const {
+  setNewFile,
+  setIsPlaying,
+  setIsSectionRun,
+  setShowSectionDetails,
+  startSection,
+  endSection,
+  setCount,
+  setOverrideCount,
+  setAngle
+} = videoSlice.actions
 
 export default videoSlice.reducer

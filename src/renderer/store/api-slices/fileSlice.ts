@@ -9,6 +9,11 @@ interface OpenFileRequest {
   path: string
 }
 
+interface GenerateCsvRequest {
+  video_name: string
+  csv_data: string
+}
+
 const urlPrefix = ''
 
 export const fileApiSlice = apiSlice.injectEndpoints({
@@ -19,9 +24,16 @@ export const fileApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: { file_path: path }
       })
+    }),
+    generateCsv: builder.mutation<any, GenerateCsvRequest>({
+      query: (body) => ({
+        url: `${urlPrefix}generate-csv`,
+        method: 'POST',
+        body
+      })
     })
   }),
   overrideExisting: false
 })
 
-export const { useOpenFileMutation } = fileApiSlice
+export const { useOpenFileMutation, useGenerateCsvMutation } = fileApiSlice

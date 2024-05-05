@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { FaPlay, FaPause, FaExpand, FaCamera, FaUndo, FaRedo } from 'react-icons/fa'
+import {
+  FaPlay,
+  FaPause,
+  FaExpand,
+  FaCamera,
+  FaUndo,
+  FaRedo,
+  FaPlusCircle,
+  FaMinusCircle,
+  FaChevronCircleLeft,
+  FaChevronCircleRight
+} from 'react-icons/fa'
+import { RiExpandUpDownFill } from 'react-icons/ri'
+
 import {
   ControlsContainer,
   InnerBar,
@@ -10,19 +23,44 @@ import {
   IconWrapper
 } from './style'
 import { useAppDispatch, useAppSelector } from '../../../../../../../store/store'
-import { setIsPlaying } from '../../../../../../../store/reducers/videoReducer'
+import {
+  endSection,
+  setCount,
+  setIsPlaying,
+  setIsSectionRun,
+  setShowSectionDetails,
+  startSection
+} from '../../../../../../../store/reducers/videoReducer'
+import { FrameSection } from '@renderer/types/enums/frame-section'
+import {
+  useGetCountMutation,
+  useSetBlockCountFrameSectionMutation
+} from '../../../../../../../store/api-slices/blockCountSlice'
+import { startSectionKeys, stopSectionKeys } from '../../../tasks-bar/helpers'
+import SnapshotPreview from '../snapshot-preview/SnapshotPreview'
 
 interface ControlsProps {
   videoRef: React.RefObject<HTMLVideoElement>
+  getCurrentExactFrame: () => number
 }
 
-const Controls: React.FC<ControlsProps> = ({ videoRef }) => {
+const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) => {
   const dispatch = useAppDispatch()
   const isPlaying = useAppSelector((state) => state.video.isPlaying)
   const videoDuration = useAppSelector((state) => state.video.duration)
+  const showSectionDetails = useAppSelector((state) => state.video.showSectionDetails)
+  const sections = useAppSelector((state) => state.video.sections)
+  const isSectionRun = useAppSelector((state) => state.video.isSectionRun)
+
+  const [getCount] = useGetCountMutation()
+  const [setBlockCountFrameSection] = useSetBlockCountFrameSectionMutation()
+
+  const [snapshotDataUrl, setSnapshotDataUrl] = useState<string>()
+
   const [progress, setProgress] = useState('0%')
   const [currentTime, setCurrentTime] = useState('0:00')
   const [duration, setDuration] = useState('0:00')
+  const [showControls, setShowControls] = useState(true) // State to toggle visibility of controls
 
   useEffect(() => {
     const video = videoRef.current
@@ -41,8 +79,19 @@ const Controls: React.FC<ControlsProps> = ({ videoRef }) => {
 
     video?.addEventListener('timeupdate', handleTimeUpdate)
 
+    const handleKeyDown = async (event: KeyboardEvent) => {
+      if (startSectionKeys.includes(event.key)) {
+        await handleFrameSection(FrameSection.START)
+      } else if (stopSectionKeys.includes(event.key)) {
+        await handleFrameSection(FrameSection.END)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
     return () => {
       video?.removeEventListener('timeupdate', handleTimeUpdate)
+      window.removeEventListener('keydown', handleKeyDown)
     }
   }, [videoRef])
 
@@ -72,7 +121,7 @@ const Controls: React.FC<ControlsProps> = ({ videoRef }) => {
     video.requestFullscreen()
   }
 
-  const takeScreenshot = () => {
+  const getSnapshotDataURL = () => {
     const video = videoRef.current
     if (!video) return
 
@@ -84,9 +133,14 @@ const Controls: React.FC<ControlsProps> = ({ videoRef }) => {
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
-    const image = canvas.toDataURL('image/png')
+    const snapshotDataURL = canvas.toDataURL('image/png')
     // You can use 'image' to display the screenshot or perform any other action
-    console.log('Screenshot taken:', image)
+    return snapshotDataURL
+  }
+
+  const takeScreenshot = () => {
+    const snapshotDataURL = getSnapshotDataURL()
+    setSnapshotDataUrl(snapshotDataURL)
   }
 
   const rewind = () => {
@@ -114,6 +168,41 @@ const Controls: React.FC<ControlsProps> = ({ videoRef }) => {
     video.currentTime = newTime
   }
 
+  const handleFrameSection = async (type: FrameSection) => {
+    const frameNumber = getCurrentExactFrame()
+    const lastIndex = sections.length - 1
+    const { id } = sections[lastIndex]
+    if (type === FrameSection.START) {
+      dispatch(setIsSectionRun(true))
+      if (sections[lastIndex].endFrame) {
+        dispatch(startSection({ frameNumber }))
+        await setBlockCountFrameSection({ type, frameNumber: frameNumber })
+      }
+    } else if (type === FrameSection.END) {
+      dispatch(setIsSectionRun(false))
+      dispatch(endSection({ id, frameNumber }))
+      const video = videoRef.current
+      if (!video) return
+      video.pause()
+      dispatch(setIsPlaying(false))
+      await setBlockCountFrameSection({ type, frameNumber: frameNumber })
+      handleCount(id)
+    }
+  }
+
+  const handleCount = async (id: string) => {
+    const response = await getCount({})
+    if ('data' in response) {
+      dispatch(setCount({ id, ...response.data }))
+    } else if ('error' in response) {
+      console.log(response.error)
+    }
+  }
+
+  const handleShowSectionDetails = () => {
+    dispatch(setShowSectionDetails(!showSectionDetails))
+  }
+
   return (
     <ControlsContainer>
       <IconsContainer>
@@ -130,19 +219,43 @@ const Controls: React.FC<ControlsProps> = ({ videoRef }) => {
         </Bar>
       </Timeline>
       <IconsContainer>
-        <IconWrapper>
-          <FaExpand onClick={fullScreen} />
+        {showControls && (
+          <>
+            <IconWrapper>
+              {isSectionRun ? (
+                <FaMinusCircle onClick={async () => await handleFrameSection(FrameSection.END)} />
+              ) : (
+                <FaPlusCircle onClick={async () => await handleFrameSection(FrameSection.START)} />
+              )}
+            </IconWrapper>
+            <IconWrapper>
+              <FaCamera onClick={takeScreenshot} />
+            </IconWrapper>
+            <IconWrapper>
+              <FaUndo onClick={rewind} />
+            </IconWrapper>
+            <IconWrapper>
+              <FaRedo onClick={forward} />
+            </IconWrapper>
+            <IconWrapper>
+              <FaExpand onClick={fullScreen} />
+            </IconWrapper>
+          </>
+        )}
+        <IconWrapper onClick={() => setShowControls(!showControls)}>
+          {showControls ? <FaChevronCircleRight /> : <FaChevronCircleLeft />}
         </IconWrapper>
         <IconWrapper>
-          <FaCamera onClick={takeScreenshot} />
-        </IconWrapper>
-        <IconWrapper>
-          <FaUndo onClick={rewind} />
-        </IconWrapper>
-        <IconWrapper>
-          <FaRedo onClick={forward} />
+          <RiExpandUpDownFill onClick={handleShowSectionDetails} />
         </IconWrapper>
       </IconsContainer>
+
+      {snapshotDataUrl && (
+        <SnapshotPreview
+          snapshotDataURL={snapshotDataUrl}
+          setSnapshotDataUrl={setSnapshotDataUrl}
+        />
+      )}
     </ControlsContainer>
   )
 }

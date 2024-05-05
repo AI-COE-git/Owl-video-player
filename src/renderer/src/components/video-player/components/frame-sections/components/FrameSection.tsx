@@ -1,14 +1,22 @@
 import {
   AngleButton,
+  CheckIconWrapper,
   FrameSectionContainer,
   FrameSectionDetail,
   FrameSectionInput,
   FrameSectionNumber
 } from './style'
-import { VideoSection, setAngle } from '../../../../../../store/reducers/videoReducer'
+import {
+  VideoSection,
+  setAngle,
+  setOverrideCount
+} from '../../../../../../store/reducers/videoReducer'
 import { useAppDispatch } from '../../../../../../store/store'
 import { useState } from 'react'
 import { isValidAngle } from '../../../../../../../utils/isValidAngle'
+import { FrameSectionCountDetailContainer } from '../style'
+import { ImCancelCircle } from 'react-icons/im'
+import { FaCheck } from 'react-icons/fa'
 
 type Props = {
   section: VideoSection
@@ -20,13 +28,24 @@ const FrameSection: React.FC<Props> = ({ section, index }) => {
   const [angleInput, setAngleInput] = useState<number>()
   const [openAngleInput, setOpenAngleInput] = useState<boolean>(false)
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const [showCancel, setShowCancel] = useState(false)
+  const [countInput, setCountInput] = useState<number>()
+  const [openCountInput, setOpenCountInput] = useState<boolean>(false)
+
+  const handleKeyDownAngle = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       if (isValidAngle(angleInput)) {
         angleHandler()
       } else {
         alert('Please enter a valid angle (0-360 degrees).')
       }
+    }
+  }
+
+  const handleKeyDownCount = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (countInput) dispatch(setOverrideCount({ id: section.id, count: countInput }))
+      setOpenCountInput(false)
     }
   }
 
@@ -50,18 +69,30 @@ const FrameSection: React.FC<Props> = ({ section, index }) => {
       {openAngleInput && (
         <FrameSectionInput
           type="number"
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleKeyDownAngle}
           onChange={async (e) => setAngleInput(parseInt(e.target.value))}
         />
       )}
       {section.angle !== undefined && (
         <FrameSectionDetail>Angle: {section.angle}</FrameSectionDetail>
       )}
-      {section.countLeft !== undefined && (
-        <FrameSectionDetail>Count Left: {section.countLeft}</FrameSectionDetail>
+      {section.countLeft !== undefined && !openCountInput && (
+        <FrameSectionCountDetailContainer>
+          Count: {section.overrideCount || section.countLeft}
+          <CheckIconWrapper
+            onMouseEnter={() => setShowCancel(true)}
+            onMouseLeave={() => setShowCancel(false)}
+          >
+            {showCancel ? <ImCancelCircle onClick={() => setOpenCountInput(true)} /> : <FaCheck />}
+          </CheckIconWrapper>
+        </FrameSectionCountDetailContainer>
       )}
-      {section.countRight !== undefined && (
-        <FrameSectionDetail>Count Right: {section.countRight}</FrameSectionDetail>
+      {openCountInput && (
+        <FrameSectionInput
+          type="number"
+          onKeyDown={handleKeyDownCount}
+          onChange={async (e) => setCountInput(parseInt(e.target.value))}
+        />
       )}
     </FrameSectionContainer>
   )

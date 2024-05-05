@@ -1,14 +1,12 @@
 import styled from 'styled-components'
 
 export const ControlsContainer = styled.div`
-  position: absolute;
-  bottom: 0;
-  padding: 15px;
-  width: 100%;
   display: flex;
   justify-content: space-around;
   opacity: 0.2;
   transition: opacity 0.4s;
+  width: 100%;
+  padding: 15px;
 
   &:hover {
     opacity: 1;
@@ -60,6 +58,7 @@ export const IconsContainer = styled.div`
 `
 
 export const IconWrapper = styled.div`
+  z-index: 10;
   cursor: pointer;
   &:hover {
     color: #fff; /* Change the color to your desired color */

@@ -1,4 +1,4 @@
-import Modal from '../../shared/Modal/Modal'
+import Modal from '../../../shared/Modal/Modal'
 import { SnapshotContainer, SnapshotImage } from './style'
 
 const SnapshotPreview = ({ snapshotDataURL, setSnapshotDataUrl }) => {

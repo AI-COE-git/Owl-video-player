@@ -47,7 +47,8 @@ const VideoPlayer: React.FC = () => {
       const fileDetails = {
         src: videoElem.src,
         path: file.path,
-        duration: videoElem.duration
+        duration: videoElem.duration,
+        name: file.name
       }
       dispatch(setNewFile(fileDetails))
       await openFile(fileDetails)
@@ -101,30 +102,22 @@ const VideoPlayer: React.FC = () => {
     }
   }
 
-  const getSnapshotDataURL = (): string | undefined => {
-    const canvas = document.createElement('canvas')
-    canvas.width = videoRef.current?.videoWidth || 0
-    canvas.height = videoRef.current?.videoHeight || 0
-    const ctx = canvas.getContext('2d')
-    if (!ctx || !videoRef.current) return
-    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height)
-    const snapshotDataURL = canvas.toDataURL('image/png')
-    return snapshotDataURL
-  }
-
   return (
     <VideoContainer>
       <Tasksbar
         handleFileInputChange={handleFileInputChange}
         frameRate={frameRate}
         setFrameRate={setFrameRate}
-        getCurrentExactFrame={getCurrentExactFrame}
-        getSnapshotDataURL={getSnapshotDataURL}
       />
       {videoRef.current?.src && <FrameSections />}
 
       {video.src ? (
-        <Video videoRef={videoRef} src={video.src} onEnded={handleVideoEnd} />
+        <Video
+          videoRef={videoRef}
+          src={video.src}
+          onEnded={handleVideoEnd}
+          getCurrentExactFrame={getCurrentExactFrame}
+        />
       ) : (
         <p>Please choose a video</p>
       )}
