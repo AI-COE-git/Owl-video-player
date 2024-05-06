@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAppSelector } from '../../../../../store/store'
-import { FrameSectionsContainer, FramesContainer, ShowFramesButton } from './style'
+import { FrameSectionsContainer, FramesContainer, ShowFramesButtons } from './style'
 import SectionDetails from '../video/components/section-details/SectionDetails'
 import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa'
+import { BsBrightnessHigh, BsBrightnessHighFill } from 'react-icons/bs'
+import { IconWrapper } from '@renderer/shared/components/icon/style'
 
 type Props = {}
 
 const FrameSections: React.FC<Props> = ({}) => {
   const sections = useAppSelector((state) => state.video.sections)
   const [showFrames, setShowFrames] = useState<boolean>(false)
+  const [brightness, setBrightness] = useState<boolean>(false)
   const framesContainerRef = useRef<HTMLDivElement>(null)
   const prevSectionsAnglesRef = useRef<(number | undefined)[]>([])
 
@@ -37,14 +40,25 @@ const FrameSections: React.FC<Props> = ({}) => {
 
   return (
     <FrameSectionsContainer>
-      <ShowFramesButton>
+      <ShowFramesButtons>
         {showFrames ? (
-          <FaArrowCircleDown size={20} onClick={() => setShowFrames((prev) => !prev)} />
+          <>
+            <IconWrapper>
+              <FaArrowCircleDown size={20} onClick={() => setShowFrames((prev) => !prev)} />
+            </IconWrapper>
+            <IconWrapper>
+              {brightness ? (
+                <BsBrightnessHigh onClick={() => setBrightness(false)} />
+              ) : (
+                <BsBrightnessHighFill onClick={() => setBrightness(true)} />
+              )}
+            </IconWrapper>
+          </>
         ) : (
           <FaArrowCircleUp size={20} onClick={() => setShowFrames((prev) => !prev)} />
         )}
-      </ShowFramesButton>
-      <FramesContainer ref={framesContainerRef}>
+      </ShowFramesButtons>
+      <FramesContainer ref={framesContainerRef} brightness={brightness}>
         {showFrames &&
           sections.map((section, index) => (
             <SectionDetails key={section.id} section={section} index={index} />

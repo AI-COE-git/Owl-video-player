@@ -11,11 +11,9 @@ import FrameSections from '../frame-sections/FrameSections'
 interface VideoProps {
   videoRef: React.RefObject<HTMLVideoElement>
   src: string
-  onEnded: () => void
-  getCurrentExactFrame: () => number
 }
 
-const Video: React.FC<VideoProps> = ({ videoRef, src, onEnded, getCurrentExactFrame }) => {
+const Video: React.FC<VideoProps> = ({ videoRef, src }) => {
   const showSectionDetails = useAppSelector((state) => state.video.showSectionDetails)
   const sections = useAppSelector((state) => state.video.sections)
   const videoName = useAppSelector((state) => state.video.name)
@@ -39,7 +37,7 @@ const Video: React.FC<VideoProps> = ({ videoRef, src, onEnded, getCurrentExactFr
   return (
     <Container>
       {videoRef.current?.src && <FrameSections />}
-      <StyledVideo ref={videoRef} onEnded={onEnded}>
+      <StyledVideo ref={videoRef}>
         <source src={src} type="video/mp4" />
         <source src={src} type="video/webm" />
         <source src={src} type="video/ogg" />
@@ -48,7 +46,7 @@ const Video: React.FC<VideoProps> = ({ videoRef, src, onEnded, getCurrentExactFr
         {showSectionDetails && lastSection ? (
           <SectionDetails section={lastSection} showSectionDetails={true} />
         ) : (
-          <Controls videoRef={videoRef} getCurrentExactFrame={getCurrentExactFrame} />
+          <Controls videoRef={videoRef} />
         )}
       </ControlsContainer>
     </Container>

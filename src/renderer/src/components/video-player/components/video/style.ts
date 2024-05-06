@@ -19,9 +19,6 @@ export const ControlsContainer = styled.div`
   position: absolute;
   bottom: 0;
   width: 100%;
-
-  &:hover {
-    opacity: 1;
-    background: rgba(0, 0, 0, 0.8);
-  }
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 999;
 `

@@ -33,14 +33,9 @@ const initialState: VideoState = {
   frames: 30,
   frameRate: 1,
   isPlaying: false,
-  isSectionRun: true,
+  isSectionRun: false,
   showSectionDetails: false,
-  sections: [
-    {
-      id: getUniqueId(),
-      startFrame: 0
-    }
-  ]
+  sections: []
 }
 
 export const videoSlice = createSlice({

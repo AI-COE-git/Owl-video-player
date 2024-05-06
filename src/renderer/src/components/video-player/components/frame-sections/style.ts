@@ -10,9 +10,12 @@ export const FrameSectionsContainer = styled.div`
   align-items: start;
 `
 
-export const ShowFramesButton = styled.div`
+export const ShowFramesButtons = styled.div`
   position: absolute;
   left: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
 `
 
 export const FrameSectionCountDetailContainer = styled.div`
@@ -26,14 +29,14 @@ export const FrameSectionCountDetailContainer = styled.div`
   gap: 10px;
 `
 
-export const FramesContainer = styled.div`
+export const FramesContainer = styled.div<{ brightness: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: start;
   max-height: 43vh;
   overflow-y: auto;
   width: 100%;
-
+  background-color: ${(props) => (props.brightness ? 'none' : 'rgba(0, 0, 0, 0.8)')};
   position: absolute;
   top: 30px;
 `

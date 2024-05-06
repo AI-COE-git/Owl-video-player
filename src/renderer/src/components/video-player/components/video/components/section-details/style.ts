@@ -30,6 +30,7 @@ export const FrameSectionDetail = styled.div`
   border: 1px solid white;
   padding: 5px 10px;
   border-radius: 5px;
+  text-align: center;
 `
 export const FrameSectionCountDetailContainer = styled.div`
   margin-right: 10px;

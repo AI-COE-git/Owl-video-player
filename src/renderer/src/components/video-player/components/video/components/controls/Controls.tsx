@@ -54,10 +54,9 @@ import { IconWrapper } from '@renderer/shared/components/icon/style'
 
 interface ControlsProps {
   videoRef: React.RefObject<HTMLVideoElement>
-  getCurrentExactFrame: () => number
 }
 
-const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) => {
+const Controls: React.FC<ControlsProps> = ({ videoRef }) => {
   const dispatch = useAppDispatch()
   const isPlaying = useAppSelector((state) => state.video.isPlaying)
   const videoDuration = useAppSelector((state) => state.video.duration)
@@ -152,6 +151,14 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [videoRef, isSectionRun])
+
+  const getCurrentExactFrame = () => {
+    if (!duration) return 0
+    const frameDuration = 1 / frames
+    const currentTime = videoRef.current?.currentTime || 0
+    const currentExactFrame = Math.floor(currentTime / frameDuration)
+    return currentExactFrame
+  }
 
   const handleVideoCurrentTime = (frame: number) => {
     if (videoRef.current) {

@@ -25,6 +25,7 @@ import { FaCheck } from 'react-icons/fa'
 import { ImCancelCircle } from 'react-icons/im'
 import { MdDelete } from 'react-icons/md'
 import { playPauseKeys, setShowSectionDetailsKeys } from '@renderer/components/video-player/helpers'
+import Loader from '@renderer/shared/components/loader/Loader'
 
 type Props = {
   section: VideoSection
@@ -107,27 +108,30 @@ const SectionDetails: React.FC<Props> = ({ section, index, showSectionDetails = 
         {section.angle !== undefined && (
           <FrameSectionDetail>Angle: {section.angle}</FrameSectionDetail>
         )}
-        {section.countLeft !== undefined && !openCountInput && (
-          <FrameSectionCountDetailContainer>
-            Count: {section.overrideCount || section.countLeft}
-            <CheckIconWrapper
-              onMouseEnter={() => setShowCancel(true)}
-              onMouseLeave={() => setShowCancel(false)}
-            >
-              {showCancel ? (
-                <ImCancelCircle onClick={() => setOpenCountInput(true)} />
-              ) : (
-                <FaCheck />
-              )}
-            </CheckIconWrapper>
-          </FrameSectionCountDetailContainer>
-        )}
-        {openCountInput && (
+        {openCountInput ? (
           <FrameSectionInput
             type="number"
             onKeyDown={handleKeyDownCount}
             onChange={async (e) => setCountInput(parseInt(e.target.value))}
           />
+        ) : (
+          <FrameSectionCountDetailContainer>
+            Count: {section.overrideCount || section.countLeft}
+            {section.count !== undefined ? (
+              <CheckIconWrapper
+                onMouseEnter={() => setShowCancel(true)}
+                onMouseLeave={() => setShowCancel(false)}
+              >
+                {showCancel ? (
+                  <ImCancelCircle onClick={() => setOpenCountInput(true)} />
+                ) : (
+                  <FaCheck />
+                )}
+              </CheckIconWrapper>
+            ) : (
+              <Loader />
+            )}
+          </FrameSectionCountDetailContainer>
         )}
       </SectionDetailsData>
       {showSectionDetails ? (
@@ -137,7 +141,9 @@ const SectionDetails: React.FC<Props> = ({ section, index, showSectionDetails = 
           />
         </IconWrapper>
       ) : (
-        <MdDelete onClick={() => dispatch(deleteSectionById(section.id))} />
+        <IconWrapper>
+          <MdDelete onClick={() => dispatch(deleteSectionById(section.id))} />
+        </IconWrapper>
       )}
     </SectionDetailsContainer>
   )
