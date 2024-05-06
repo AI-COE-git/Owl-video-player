@@ -1,11 +1,16 @@
+import { IconWrapper } from '../../../../../shared/components/icon/style'
 import { CloseButton, ModalBackground, ModalContent } from './style'
-import closeIcon from '../../../../../assets/images/close-icon.svg'
+import { IoIosCloseCircleOutline } from 'react-icons/io'
 
 const Modal = ({ closeModal, children }) => {
   return (
-    <ModalBackground>
+    <ModalBackground className="modal">
       <ModalContent>
-        <CloseButton src={closeIcon} alt="Close" onClick={closeModal} />
+        <CloseButton>
+          <IconWrapper>
+            <IoIosCloseCircleOutline onClick={closeModal} />
+          </IconWrapper>
+        </CloseButton>
         {children}
       </ModalContent>
     </ModalBackground>

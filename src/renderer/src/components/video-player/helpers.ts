@@ -22,6 +22,9 @@ export const nextFrameKeys = ['o', 'O', 'ArrowRight']
 export const prevFrameKeys = ['i', 'I', 'ArrowLeft']
 export const playPauseKeys = ['Space']
 export const exitFullScreenKeys = ['Escape']
+export const startSectionKeys = ['=']
+export const stopSectionKeys = ['-']
+export const setShowSectionDetailsKeys = exitFullScreenKeys
 
 export const saveImage = (dataURL: string) => {
   // Remove header from base64 data URL

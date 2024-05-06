@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { VideoContainer } from './style'
 import { useAppDispatch, useAppSelector } from '../../../store/store'
 import { endSection, setCount } from '../../../store/reducers/videoReducer'
-import { nextFrameKeys, prevFrameKeys } from './helpers'
 import {
   useGetCountMutation,
   useSetBlockCountFrameSectionMutation
@@ -14,44 +13,10 @@ import Tasksbar from './components/tasks-bar/tasksBar'
 const VideoPlayer: React.FC = () => {
   const dispatch = useAppDispatch()
   const video = useAppSelector((state) => state.video)
-  const frameRate = useAppSelector((state) => state.video.frameRate)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   const [setBlockCountFrameSection] = useSetBlockCountFrameSectionMutation()
   const [getCount] = useGetCountMutation()
-
-  useEffect(() => {
-    if (videoRef.current && videoRef.current.src !== video.src) {
-      videoRef.current.src = video.src
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [video])
-
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (!video.duration) return
-    const totalFrames = video.duration * video.frames
-    const currentExactFrame = getCurrentExactFrame()
-    if (!currentExactFrame) return
-
-    if (nextFrameKeys.includes(event.key)) {
-      const nextFrame = currentExactFrame + frameRate
-      handleVideoCurrentTime(nextFrame >= totalFrames ? video.duration : nextFrame)
-    } else if (prevFrameKeys.includes(event.key)) {
-      const prevFrame = currentExactFrame - frameRate
-      handleVideoCurrentTime(prevFrame < 0 ? 0 : prevFrame)
-    }
-  }
-
-  const handleVideoCurrentTime = (frame: number) => {
-    if (videoRef.current) {
-      const frameDuration = 1 / video.frames
-      videoRef.current.currentTime = frame * frameDuration + 0.00001
-    }
-  }
 
   const getCurrentExactFrame = () => {
     if (!video.duration) return 0

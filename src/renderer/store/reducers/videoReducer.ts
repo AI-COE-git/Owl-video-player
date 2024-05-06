@@ -64,6 +64,7 @@ export const videoSlice = createSlice({
         id: getUniqueId(),
         startFrame: action.payload.frameNumber
       })
+      state.isSectionRun = true
     },
     endSection: (state, action: PayloadAction<{ id: string; frameNumber: number }>) => {
       const { id, frameNumber } = action.payload
@@ -72,6 +73,7 @@ export const videoSlice = createSlice({
         sectionToUpdate.endFrame = frameNumber
         state.showSectionDetails = true
       }
+      state.isSectionRun = false
     },
     setCount: (
       state,
@@ -92,6 +94,15 @@ export const videoSlice = createSlice({
         sectionToUpdate.overrideCount = count
       }
     },
+    deleteSectionById: (state, action: PayloadAction<string>) => {
+      const filteredSections = state.sections.filter((section) => section.id !== action.payload)
+      const lastSection = filteredSections[filteredSections.length - 1]
+      if (!lastSection || lastSection.endFrame) {
+        state.isSectionRun = false
+      }
+      state.sections = filteredSections
+    },
+
     setAngle: (state, action: PayloadAction<{ id: string; angle: number }>) => {
       const { id, angle } = action.payload
       const sectionToUpdate = state.sections.find((section) => section.id === id)
@@ -114,6 +125,7 @@ export const {
   endSection,
   setCount,
   setOverrideCount,
+  deleteSectionById,
   setAngle,
   setFrameRate
 } = videoSlice.actions

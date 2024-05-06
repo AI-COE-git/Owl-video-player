@@ -14,13 +14,13 @@ export const ModalBackground = styled.div`
 
 export const ModalContent = styled.div`
   position: relative;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(0, 0, 0, 1);
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 `
 
-export const CloseButton = styled.img`
+export const CloseButton = styled.div`
   position: absolute;
   top: 5px;
   right: 5px;

@@ -45,7 +45,7 @@ const Video: React.FC<VideoProps> = ({ videoRef, src, onEnded, getCurrentExactFr
         <source src={src} type="video/ogg" />
       </StyledVideo>
       <ControlsContainer>
-        {showSectionDetails ? (
+        {showSectionDetails && lastSection ? (
           <SectionDetails section={lastSection} showSectionDetails={true} />
         ) : (
           <Controls videoRef={videoRef} getCurrentExactFrame={getCurrentExactFrame} />

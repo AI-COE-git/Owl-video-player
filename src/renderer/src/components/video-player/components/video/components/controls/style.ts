@@ -63,16 +63,6 @@ export const HiddenIconsContainer = styled.div<{ open: boolean }>`
   gap: 10px;
 `
 
-export const IconWrapper = styled.div`
-  z-index: 10;
-  cursor: pointer;
-  position: relative;
-
-  &:hover {
-    color: #fff; /* Change the color to your desired color */
-  }
-`
-
 export const DropdownContainer = styled.div<{ open: boolean }>`
   position: absolute;
   bottom: calc(100% + 5px); /* Adjust the distance between the icon and the dropdown container */

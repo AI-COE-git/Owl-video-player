@@ -22,7 +22,6 @@ import {
   Bar,
   IconsContainer,
   TimeDisplay,
-  IconWrapper,
   DropdownContainer,
   Dropdown,
   Option,
@@ -34,7 +33,6 @@ import {
   setCount,
   setFrameRate,
   setIsPlaying,
-  setIsSectionRun,
   setShowSectionDetails,
   startSection
 } from '../../../../../../../store/reducers/videoReducer'
@@ -43,14 +41,16 @@ import {
   useGetCountMutation,
   useSetBlockCountFrameSectionMutation
 } from '../../../../../../../store/api-slices/blockCountSlice'
-import { startSectionKeys, stopSectionKeys } from '../../../tasks-bar/helpers'
 import SnapshotPreview from '../snapshot-preview/SnapshotPreview'
 import {
   exitFullScreenKeys,
   nextFrameKeys,
   playPauseKeys,
-  prevFrameKeys
+  prevFrameKeys,
+  startSectionKeys,
+  stopSectionKeys
 } from '@renderer/components/video-player/helpers'
+import { IconWrapper } from '@renderer/shared/components/icon/style'
 
 interface ControlsProps {
   videoRef: React.RefObject<HTMLVideoElement>
@@ -91,6 +91,8 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
     setProgress(`${curr}%`)
     setCurrentTime(formatTime(video.currentTime))
     setDuration(formatTime(videoDuration as number))
+
+    if (isPlaying) video.play()
   }, [])
 
   useEffect(() => {
@@ -111,10 +113,10 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
     video?.addEventListener('timeupdate', handleTimeUpdate)
 
     const handleKeyDown = async (event: KeyboardEvent) => {
-      if (startSectionKeys.includes(event.key)) {
+      if (startSectionKeys.includes(event.key) && !isSectionRun) {
         await handleFrameSection(FrameSection.START)
         return
-      } else if (stopSectionKeys.includes(event.key)) {
+      } else if (stopSectionKeys.includes(event.key) && isSectionRun) {
         await handleFrameSection(FrameSection.END)
         return
       } else if (playPauseKeys.includes(event.code)) {
@@ -133,11 +135,10 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
       if (!videoDuration) return
       const totalFrames = videoDuration * frames
       const currentExactFrame = getCurrentExactFrame()
-      if (!currentExactFrame) return
 
       if (nextFrameKeys.includes(event.key)) {
         const nextFrame = currentExactFrame + frameRate
-        handleVideoCurrentTime(nextFrame >= totalFrames ? videoDuration : nextFrame)
+        handleVideoCurrentTime(nextFrame >= totalFrames ? 0 : nextFrame)
       } else if (prevFrameKeys.includes(event.key)) {
         const prevFrame = currentExactFrame - frameRate
         handleVideoCurrentTime(prevFrame < 0 ? 0 : prevFrame)
@@ -150,7 +151,7 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
       video?.removeEventListener('timeupdate', handleTimeUpdate)
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [videoRef])
+  }, [videoRef, isSectionRun])
 
   const handleVideoCurrentTime = (frame: number) => {
     if (videoRef.current) {
@@ -238,15 +239,11 @@ const Controls: React.FC<ControlsProps> = ({ videoRef, getCurrentExactFrame }) =
   const handleFrameSection = async (type: FrameSection) => {
     const frameNumber = getCurrentExactFrame()
     const lastIndex = sections.length - 1
-    const { id } = sections[lastIndex]
     if (type === FrameSection.START) {
-      dispatch(setIsSectionRun(true))
-      if (sections[lastIndex].endFrame) {
-        dispatch(startSection({ frameNumber }))
-        await setBlockCountFrameSection({ type, frameNumber: frameNumber })
-      }
+      dispatch(startSection({ frameNumber }))
+      await setBlockCountFrameSection({ type, frameNumber: frameNumber })
     } else if (type === FrameSection.END) {
-      dispatch(setIsSectionRun(false))
+      const { id } = sections[lastIndex]
       dispatch(endSection({ id, frameNumber }))
       const video = videoRef.current
       if (!video) return

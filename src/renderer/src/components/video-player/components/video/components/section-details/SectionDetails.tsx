@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AngleButton,
   CheckIconWrapper,
@@ -9,10 +9,12 @@ import {
   SectionDetailsContainer,
   SectionDetailsData
 } from './style'
-import { useAppDispatch, useAppSelector } from '../../../../../../../store/store'
+import { useAppDispatch } from '../../../../../../../store/store'
 import {
   VideoSection,
+  deleteSectionById,
   setAngle,
+  setIsPlaying,
   setOverrideCount,
   setShowSectionDetails
 } from '../../../../../../../store/reducers/videoReducer'
@@ -21,6 +23,8 @@ import { IconWrapper } from './style'
 import { RiExpandUpDownFill } from 'react-icons/ri'
 import { FaCheck } from 'react-icons/fa'
 import { ImCancelCircle } from 'react-icons/im'
+import { MdDelete } from 'react-icons/md'
+import { playPauseKeys, setShowSectionDetailsKeys } from '@renderer/components/video-player/helpers'
 
 type Props = {
   section: VideoSection
@@ -37,6 +41,26 @@ const SectionDetails: React.FC<Props> = ({ section, index, showSectionDetails = 
   const [showCancel, setShowCancel] = useState(false)
   const [countInput, setCountInput] = useState<number>()
   const [openCountInput, setOpenCountInput] = useState<boolean>(false)
+
+  useEffect(() => {
+    const handleKeyDown = async (event: KeyboardEvent) => {
+      if (setShowSectionDetailsKeys.includes(event.key)) {
+        dispatch(setShowSectionDetails(!showSectionDetails))
+        return
+      }
+      if (playPauseKeys.includes(event.code)) {
+        dispatch(setIsPlaying(true))
+        dispatch(setShowSectionDetails(!showSectionDetails))
+        return
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [])
 
   const handleKeyDownAngle = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -106,12 +130,14 @@ const SectionDetails: React.FC<Props> = ({ section, index, showSectionDetails = 
           />
         )}
       </SectionDetailsData>
-      {showSectionDetails && (
+      {showSectionDetails ? (
         <IconWrapper>
           <RiExpandUpDownFill
             onClick={() => dispatch(setShowSectionDetails(!showSectionDetails))}
           />
         </IconWrapper>
+      ) : (
+        <MdDelete onClick={() => dispatch(deleteSectionById(section.id))} />
       )}
     </SectionDetailsContainer>
   )
